@@ -84,34 +84,49 @@ def textoParaWhatsapp(nome_paciente_texto, totalkids):
         return f"%20Como%20foi%20a%20sua%20semana,%20{criarNomeSimplificado(nome_paciente_texto)}?"
         
 
-def printNomeTelefone():
-    for i in range(0,50):
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.ID, f"fotoPerfil{i}"))
-        )
+ef printNomeTelefone():
+    
+    diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+    caminho_arquivo = os.path.join(diretorio_atual, "output.html")
 
-        totalkids = totalkidsOuNao(i)
-
-        botao_imgPaciente = driver.find_element(By.ID, f"fotoPerfil{i}")
-        botao_imgPaciente.click()
-
-        perguntaNovaConsulta()
-
-        driver.implicitly_wait(1)
-
-        modal_content = driver.find_elements(By.ID, "modal-content")
-        nome_paciente = driver.find_element(By.ID, "nomeDadosFake")
-        telefone_paciente = driver.find_element(By.ID, "telefoneDadosFake")
-
-        nome_paciente_texto = nome_paciente.text
-        telefone_paciente_texto = telefone_paciente.text
-        telefone_paciente_texto = re.sub(r'\D','', telefone_paciente_texto)
-
-        print(f"Nome: {nome_paciente_texto} | link: https://web.whatsapp.com/send/?phone=55{telefone_paciente_texto}&text={turnoDoDia()}{textoParaWhatsapp(nome_paciente_texto,totalkids)}")
-        print("")
+    print("Diretório atual:", os.getcwd())
+    
+    with open(caminho_arquivo, "w") as file:
         
-        close_button = driver.find_element(By.XPATH, "//*[@id='pacientesModal']/div/div/div[1]/button/i")
-        close_button.click()
+        file.write("<html><body>\n")
+
+        # ultimos 5 pacientes modificados
+        for i in range(0, 18):
+            
+            WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, f"fotoPerfil{i}"))
+            )
+
+            totalkids = totalkidsOuNao(i)
+
+            botao_imgPaciente = driver.find_element(By.ID, f"fotoPerfil{i}")
+            botao_imgPaciente.click()
+
+            perguntaNovaConsulta()
+
+            driver.implicitly_wait(1)
+
+            modal_content = driver.find_elements(By.ID, "modal-content")
+            nome_paciente = driver.find_element(By.ID, "nomeDadosFake")
+            telefone_paciente = driver.find_element(By.ID, "telefoneDadosFake")
+
+            nome_paciente_texto = nome_paciente.text
+            telefone_paciente_texto = telefone_paciente.text
+            telefone_paciente_texto = re.sub(r'\D', '', telefone_paciente_texto)
+            
+            file.write(f"<p><strong>Nome:</strong> {nome_paciente_texto} | <strong>Link:</strong> <a href='https://web.whatsapp.com/send/?phone=55{telefone_paciente_texto}&text={turnoDoDia()}{textoParaWhatsapp(nome_paciente_texto, totalkids)}' target='_blank'>Whatsapp</a></p>\n")
+
+            close_button = driver.find_element(By.XPATH, "//*[@id='pacientesModal']/div/div/div[1]/button/i")
+            close_button.click()
+
+        file.write("</body></html>\n")
+
+    print("Arquivo output.html recriado e atualizado com sucesso!")
 
 
 
